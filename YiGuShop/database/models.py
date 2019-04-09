@@ -13,6 +13,7 @@ class TimeTransition:
             return False
         return time.strftime('%Y-%m-%d %H:%M:%S',st)
 
+
 class UserProfile(models.Model):
     """
     用户信息拓展
@@ -80,11 +81,12 @@ class Commodity(models.Model):
     name = models.CharField(max_length=50, verbose_name='商品名称')
     origin = models.CharField(max_length=30, null=True, verbose_name='产地')
     status_choices = ((1, '上架'), (2, '下架'), (3, '促销'), (4, '预售'))
-    status = models.PositiveSmallIntegerField(choices=status_choices, default=1, verbose_name='产品销售状态')
+    status = models.PositiveSmallIntegerField(choices=status_choices, default=1, verbose_name='商品销售状态')
     inventory = models.PositiveIntegerField(default=0, verbose_name='商品库存')
     sales = models.PositiveIntegerField(default=0, verbose_name='商品销量')
     comment_num = models.PositiveIntegerField(default=0, verbose_name='评论数量')
-    brand = models.ForeignKey(Brand, on_delete=models.DO_NOTHING, null=True, verbose_name='关联品牌')
+    brand = models.ForeignKey(Brand, on_delete=models.DO_NOTHING, null=True, verbose_name='关联商品品牌')
+    category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, null=True, verbose_name='关联商品分类')
 
     def __str__(self):
         return self.name
