@@ -48,7 +48,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -121,3 +121,11 @@ USE_TZ = False
 STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
+
+#邮件配置
+EMAIL_USE_SSL = True
+EMAIL_HOST = 'smtp.qq.com'  # 如果是 163 改成 smtp.163.com   SMTP地址
+EMAIL_PORT = 465            #SMTP端口
+EMAIL_HOST_USER = 'wbovan@qq.com' # 帐号
+EMAIL_HOST_PASSWORD = 'fnlvbbxmygdbhfda'  # 授权密码
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
