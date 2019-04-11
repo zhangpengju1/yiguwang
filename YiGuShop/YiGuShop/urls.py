@@ -28,3 +28,4 @@ urlpatterns = [
     path('api/v1/search',YiGuView(),name='haystack_search'),
     path('api/v1/shop', include('shop.urls')),
     re_path(r'^api/v1/media/(?P<path>.*)$', serve, {"document_root":MEDIA_ROOT})
+]
