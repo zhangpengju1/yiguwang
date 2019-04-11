@@ -1,7 +1,9 @@
 from django.urls import path
-from . import views
+from account import views
 
 urlpatterns = [
+    path('funds/', views.Ubalance.as_view()),
+    path('receiving_address/', views.Udelivery.as_view()),
     path('register/', views.Register.as_view()),
     path('sendmail/', views.Sendmail.as_view()),
     path('verifycode/',views.Verifycode.as_view()),
