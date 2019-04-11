@@ -1,0 +1,6 @@
+{{object.name}}
+{{object.description}}
+{{object.status}}
+{{object.commodity.category.name}}
+{{object.commodity.brand}}
+{{object.commodity.origin}}

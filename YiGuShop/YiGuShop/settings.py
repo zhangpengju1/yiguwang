@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'haystack',
     'database.apps.DatabaseConfig',
     'account.apps.AccountConfig',
     'cart.apps.CartConfig',
@@ -83,7 +84,15 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'search.whoosh_cn_backend.WhooshEngine',
+        'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
+    }
+}
+# 当添加、修改、删除数据时，自动生成索引
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+HAYSTACK_SEARCH_RESULTS_PER_PAGE  =  20
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
@@ -120,7 +129,9 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 
-MEDIA_URL = '/media/'
+
+MEDIA_URL = '/api/v1/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 #邮件配置
 EMAIL_USE_SSL = True

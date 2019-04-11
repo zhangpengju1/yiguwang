@@ -56,7 +56,7 @@ class Category(models.Model):
     desc = models.CharField(max_length=50, verbose_name='分类描述')
     parent = models.ForeignKey('self', default=0, null=True, blank=True, related_name='children', verbose_name='上级分类',
                                limit_choices_to={'is_abort': False, 'is_root': True}, on_delete=models.CASCADE)
-    is_root = models.BooleanField(default=False, verbose_name='是否是一级分类')
+    is_root = models.BooleanField(default=0, verbose_name='是否是一级分类')
     image = models.ImageField(upload_to='commodity/category/', verbose_name='分类图片', null=True, blank=True)
     is_abort = models.BooleanField(default=False, verbose_name='是否删除')
 
@@ -64,42 +64,25 @@ class Category(models.Model):
         return self.name
 
 
-class Brand(models.Model):
-    """
-    商品品牌
-    """
-    name = models.CharField(max_length=20, verbose_name='品牌名称')
-
-    def __str__(self):
-        return self.name
-
+# class Brand(models.Model):
+#     """
+#     商品品牌
+#     """
+#     name = models.CharField(max_length=20, verbose_name='品牌名称')
+#
+#     def __str__(self):
+#         return self.name
 
 class Commodity(models.Model):
     """
-    商品
+    商品简称
     """
-    name = models.CharField(max_length=50, verbose_name='商品名称')
-    origin = models.CharField(max_length=30, null=True, verbose_name='产地')
-    status_choices = ((1, '上架'), (2, '下架'), (3, '促销'), (4, '预售'))
-    status = models.PositiveSmallIntegerField(choices=status_choices, default=1, verbose_name='产品销售状态')
-    inventory = models.PositiveIntegerField(default=0, verbose_name='商品库存')
-    sales = models.PositiveIntegerField(default=0, verbose_name='商品销量')
+
+    short_name = models.CharField(max_length=30, null=True, verbose_name='商品简称')
     comment_num = models.PositiveIntegerField(default=0, verbose_name='评论数量')
-    brand = models.ForeignKey(Brand, on_delete=models.DO_NOTHING, null=True, verbose_name='关联品牌')
-
-    def __str__(self):
-        return self.name
-
-
-class Collect(models.Model):
-    """
-    用户收藏商品
-    """
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='关联用户')
-    commodity = models.ForeignKey(Commodity, on_delete=models.DO_NOTHING, verbose_name='关联商品')
-
-    def __str__(self):
-        return (self.user.username, self.commodity.name)
+    brand = models.CharField(max_length=20,verbose_name='品牌')
+    origin = models.CharField(max_length=20, verbose_name='产地')
+    category = models.ForeignKey(Category,on_delete=models.DO_NOTHING,verbose_name='关联分类',limit_choices_to={'is_root': 0})
 
 
 class Comment(models.Model, TimeTransition):
@@ -107,7 +90,7 @@ class Comment(models.Model, TimeTransition):
     商品评论
     """
     user = models.ForeignKey(UserProfile, on_delete=models.DO_NOTHING, verbose_name='关联用户')
-    commodity = models.ForeignKey(Commodity, on_delete=models.CASCADE, verbose_name='关联商品')
+    commodity = models.ForeignKey(Commodity, on_delete=models.CASCADE, verbose_name='关联商品简称')
     reply = models.ForeignKey('self', null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name='关联回复')
     time = models.CharField(max_length=30, verbose_name='评论时间戳')
     content = models.CharField(max_length=150, verbose_name='评论内容')
@@ -120,11 +103,14 @@ class Specification(models.Model):
     """
     商品规格
     """
-    name = models.CharField(max_length=100, verbose_name='商品规格全称')
+    name = models.CharField(max_length=100, verbose_name='商品全称')
     describe = models.CharField(max_length=20, verbose_name='规格描述')
+    description = models.CharField(max_length=100,verbose_name='商品描述')
     integral = models.PositiveSmallIntegerField(default=0, verbose_name='商品积分')
     mall_price = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='商城价')
     market_price = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='市场价')
+    status_choices = ((1, '上架'), (2, '下架'), (3, '促销'), (4, '预售'))
+    status = models.PositiveSmallIntegerField(choices=status_choices, default=1, verbose_name='产品销售状态')
     inventory = models.PositiveIntegerField(default=0, verbose_name='该规格商品的库存数量')
     sales_volume = models.PositiveIntegerField(default=0, verbose_name='该规格商品的销量')
     commodity = models.ForeignKey(Commodity, on_delete=models.CASCADE, verbose_name='关联商品')
@@ -132,6 +118,15 @@ class Specification(models.Model):
     def __str__(self):
         return self.name
 
+class Collect(models.Model):
+    """
+    用户收藏商品
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='关联用户')
+    specification = models.ForeignKey(Specification, on_delete=models.DO_NOTHING, verbose_name='关联商品规格')
+
+    def __str__(self):
+        return self.user.username,self.specification.name
 
 class CommodityImage(models.Model):
     """
@@ -140,7 +135,7 @@ class CommodityImage(models.Model):
     image = models.ImageField(upload_to='commodity/infoimage/', verbose_name='商品信息图片')
     is_show = models.BooleanField(default=1, verbose_name='是否为展示图片')
     num = models.PositiveSmallIntegerField(verbose_name='图片编号')
-    commodity = models.ForeignKey(Commodity, on_delete=models.CASCADE, verbose_name='关联商品')
+    commodity = models.ForeignKey(Specification, on_delete=models.CASCADE, verbose_name='关联商品')
 
 
 class Cart(models.Model):

@@ -14,14 +14,27 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
-
+from django.urls import path, include,re_path
+from django.conf.urls import url
+from search.views import YiGuView
+from django.views.static import serve
+from .settings import MEDIA_ROOT
 urlpatterns = [
     path('admin/', admin.site.urls),
+<<<<<<< HEAD
+    path('api/v1/account', include('account.urls')),
+    path('api/v1/cart', include('cart.urls')),
+    path('api/v1/orderform', include('orderform.urls')),
+    path('api/v1/pay', include('pay.urls')),
+    path('api/v1/search',YiGuView(),name='haystack_search'),
+    path('api/v1/shop', include('shop.urls')),
+    re_path(r'^api/v1/media/(?P<path>.*)$', serve, {"document_root":MEDIA_ROOT})
+=======
     path('api/v1/account/', include('account.urls')),
     path('api/v1/cart/', include('cart.urls')),
     path('api/v1/orderform/', include('orderform.urls')),
     path('api/v1/pay/', include('pay.urls')),
     path('api/v1/search/', include('search.urls')),
     path('api/v1/shop/', include('shop.urls')),
+>>>>>>> 374a5ddac1791394c4cc4232e1bc565ef8147d3a
 ]
