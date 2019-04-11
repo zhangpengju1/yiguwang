@@ -5,19 +5,20 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 class TimeTransition:
-    def time(self,timestamp):
+    def time(self, timestamp):
         import time
         try:
             st = time.localtime(float(timestamp))
-        except (TypeError,ValueError):
+        except (TypeError, ValueError):
             return False
-        return time.strftime('%Y-%m-%d %H:%M:%S',st)
+        return time.strftime('%Y-%m-%d %H:%M:%S', st)
+
 
 class UserProfile(models.Model):
     """
     用户信息拓展
     """
-    head_portrait = models.ImageField(upload_to='user/head_portrait/')
+    head_portrait = models.ImageField(upload_to='user/head_portrait/', null=True)
     cell_phone = models.CharField(max_length=11, null=True, verbose_name='手机号')
     sex_choice = ((1, '男'), (0, '女'), (2, '密'))
     sex = models.PositiveSmallIntegerField(choices=sex_choice, verbose_name='性别')
@@ -34,7 +35,7 @@ class UserProfile(models.Model):
         return self.user.username
 
 
-class Transaction(models.Model,TimeTransition):
+class Transaction(models.Model, TimeTransition):
     """
     用户交易记录
     """
@@ -101,7 +102,7 @@ class Collect(models.Model):
         return (self.user.username, self.commodity.name)
 
 
-class Comment(models.Model,TimeTransition):
+class Comment(models.Model, TimeTransition):
     """
     商品评论
     """
@@ -154,24 +155,32 @@ class Cart(models.Model):
         return self.commodity.name
 
 
-class OrderForm(models.Model,TimeTransition):
+class OrderForm(models.Model, TimeTransition):
     """
     订单
     """
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     num = models.CharField(max_length=25, verbose_name='订单编号')
-    status_choices = ((1, '待支付'), (2, '代发货'), (3, '待收货'), (4, '已收货'), (5, '已确认'), (6, '已完成'), (0, '已取消'))
-    status = models.PositiveSmallIntegerField(choices=status_choices, verbose_name='订单状态')
     order_time = models.CharField(max_length=30, verbose_name='下单时间戳')
-    delivery_time = models.CharField(max_length=30, null=True, verbose_name='发货时间戳')
-    receipt_time = models.CharField(max_length=30, null=True, verbose_name='收货时间戳')
-    freight = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='邮费')
-    gross_amount = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='订单总价')
+    freight_time = models.CharField(max_length=30,null=True,verbose_name='发货时间')
+    status_choices = ((1, '待支付'), (2, '代发货'), (3, '待收货'), (4, '已收货'), (5, '已确认'), (6, '已完成'), (0, '已取消'))
+    status = models.PositiveSmallIntegerField(choices=status_choices, default=1, verbose_name='订单状态')
     paymode_choices = ((1, '余额支付'), (2, '支付宝支付'), (3, '微信支付'), (4, '银联支付'), (5, '广发银行'))
     paymode = models.PositiveSmallIntegerField(choices=paymode_choices, verbose_name='支付方式')
-    address = models.CharField(max_length=150, verbose_name='省/市/区')
-    detailed = models.CharField(max_length=150, verbose_name='详细地址')
-    is_self = models.BooleanField(default=0, verbose_name='是否自提')
+    ship_mode = models.CharField(max_length=10, null=True, verbose_name='配送方式')
+    is_self = models.BooleanField(default=False, verbose_name='是否自提')
+    order_way = models.CharField(max_length=20, default='网上订购', verbose_name='订购方式')
+    pay_status = models.BooleanField(default=False, verbose_name='付款状态')
+    delivery_num = models.CharField(max_length=20, null=True, verbose_name='送货单号')
+    freight = models.DecimalField(max_digits=8, decimal_places=2,default=0.00, verbose_name='邮费')
+    gross_amount = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='订单总价')
+    claim_name = models.CharField(max_length=20, null=True, verbose_name='取货人名称')
+    phone = models.CharField(max_length=11, null=True, verbose_name='联系电话')
+    note = models.CharField(max_length=100, null=True, verbose_name='备注')
+    claim_addr = models.CharField(max_length=200, null=True, verbose_name='取货地址')
+    receive_name = models.CharField(max_length=20, null=True, verbose_name='收货人名')
+    district = models.CharField(max_length=100, null=True, verbose_name='收货省/市/区')
+    details_addr = models.CharField(max_length=100, null=True, verbose_name='详细收货地址')
 
     def __str__(self):
         return self.num
@@ -195,15 +204,14 @@ class Receiving(models.Model):
     def __str__(self):
         return self.name
 
+class Claim_receiving(models.Model):
+    claim_addr = models.CharField(max_length=100,verbose_name='取货地址')
 
 class OrderCommodity(models.Model):
     """
     订单与商品进行多对多的关联，中间数据表
     """
-    orderform = models.ForeignKey(OrderForm, on_delete=models.DO_NOTHING)
-    commodity = models.ForeignKey(Commodity, on_delete=models.DO_NOTHING)
-    quantity = models.PositiveSmallIntegerField(default=1, verbose_name='商品的选购数量，默认为1')
-    subtotal = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='商品小计总价')
-
-    def __str__(self):
-        return self.quantity
+    orderform = models.ForeignKey(OrderForm, null=True, on_delete=models.DO_NOTHING)
+    specification = models.ForeignKey(Specification, null=True, on_delete=models.DO_NOTHING)
+    quantity = models.PositiveSmallIntegerField(default=1, null=True, verbose_name='商品的选购数量，默认为1')
+    subtotal = models.DecimalField(max_digits=8, decimal_places=2, null=True, verbose_name='商品小计总价')
